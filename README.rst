@@ -22,6 +22,17 @@ About
 =====
 
 
+Build and Run Docker image
+==================
+
+You can run docker build: ::
+
+  docker build -f ./Dockerfile-dev -t cds-dojson .
+
+After the end of the process, you can run: ::
+
+  docker run -it --r `pwd`:/home/cds-dojson/.virtualenvs/cds-dojson/src/code cds-dojson bash
+
 
 Installation
 ============

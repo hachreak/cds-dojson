@@ -1,0 +1,40 @@
+# This file is part of CDS DoJSON
+# Copyright (C) 2015 CERN.
+#
+# CDS DoJSON is free software; you can redistribute it and/or
+# modify it under the terms of the Revised BSD License; see LICENSE
+# file for more details.
+
+# Use Python-2.7:
+FROM python:2.7
+
+# Install some prerequisites ahead of `setup.py` in order to profit
+# from the docker build cache:
+RUN pip install virtualenvwrapper
+
+# Run container as user `cds-dojson` with UID `1000`, which should match
+# current host user in most situations:
+RUN adduser --uid 1000 --disabled-password --gecos '' cds-dojson
+
+# Run test suite instead of starting the application:
+USER cds-dojson
+
+RUN bash -c "source $(which virtualenvwrapper.sh) && \
+      mkvirtualenv cds-dojson && \
+      workon cds-dojson && \
+      cdvirtualenv && \
+      mkdir src && \
+      echo source $(which virtualenvwrapper.sh) >> ~/.bashrc && \
+      echo workon cds-dojson >> ~/.bashrc && \
+      echo cdvirtualenv src/code >> ~/.bashrc"
+
+# Add sources to `code` and work there:
+WORKDIR /home/cds-dojson/.virtualenvs/cds-dojson/src/code
+
+VOLUME ["/home/cds-dojson/.virtualenvs/cds-dojson/src/code"]
+
+# Install cds-dojson:
+ONBUILD RUN pip install -e .[docs] && \
+    pip install -r requirements-dev.txt
+
+CMD ["bash"]
